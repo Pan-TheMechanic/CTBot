@@ -57,6 +57,8 @@ public:
 	bool sendMessage(int64_t id, String message, String keyboard = "");
 	bool sendMessage(int64_t id, String message, CTBotInlineKeyboard &keyboard);
 	bool sendMessage(int64_t id, String message, CTBotReplyKeyboard  &keyboard);
+	bool sendChatAction(int64_t id, String message);
+	
 
 	// terminate a query started by pressing an inlineKeyboard button. The steps are:
 	// 1) send a message with an inline keyboard
