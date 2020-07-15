@@ -274,6 +274,56 @@ bool CTBot::sendMessage(int64_t id, String message, CTBotReplyKeyboard &keyboard
 	return sendMessage(id, message, keyboard.getJSON());
 }
 
+bool CTBot::sendChatAction(int64_t id, String message)
+{
+	if (0 == message.length())
+		return false;
+	String response = "";
+	String strID = int64ToAscii(id);
+	message = URLEncodeMessage(message); //-------------------------------------------------------------------------------------------------------------------------------------
+
+
+	long sttime = millis();
+
+	if (message != "") {
+		while (millis() < sttime + 2000) { // loop for a while to send the message
+
+			String parameters = (String)"?chat_id=" + strID + (String)"&action=" + message;
+
+			 response = sendCommand("sendChatAction", parameters);
+			if (response.length() == 0) {
+#if CTBOT_DEBUG_MODE > 0
+				serialLog("SendMessage error: response with no data\n");
+#endif
+				return false;
+			}
+		}
+	}
+#if CTBOT_BUFFER_SIZE > 0
+	StaticJsonBuffer<CTBOT_BUFFER_SIZE> jsonBuffer;
+#else
+	DynamicJsonBuffer jsonBuffer;
+#endif
+	JsonObject& root = jsonBuffer.parse(response);
+
+	bool ok = root["ok"];
+	if (!ok) {
+#if CTBOT_DEBUG_MODE > 0
+		serialLog("SendMessage error: ");
+		root.prettyPrintTo(Serial);
+		serialLog("\n");
+#endif
+		return false;
+	}
+
+#if CTBOT_DEBUG_MODE > 0
+	serialLog("SendMessage JSON: ");
+	root.prettyPrintTo(Serial);
+	serialLog("\n");
+#endif
+	return true;
+}
+
 bool CTBot::endQuery(String queryID, String message, bool alertMode)
 {
 	if (0 == queryID.length())
